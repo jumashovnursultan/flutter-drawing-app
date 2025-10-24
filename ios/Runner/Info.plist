@@ -50,6 +50,11 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Нужен доступ для сохранения рисунков в галерею</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Нужен доступ к камере для создания фото</string>	
+	<string>Нужен доступ к камере для создания фото</string>
+	<key>UIBackgroundModes</key>
+	<array>
+   	    <string>fetch</string>
+    	<string>remote-notification</string>
+	</array>		
 </dict>
 </plist>

@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/services/notification_service.dart';
 import 'package:drawing_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:drawing_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:drawing_app/features/auth/presentation/screens/login_screen.dart';
@@ -14,6 +15,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await di.init();
+  final notificationService = di.sl<NotificationService>();
+  await notificationService.initialize();
 
   runApp(const MyApp());
 }

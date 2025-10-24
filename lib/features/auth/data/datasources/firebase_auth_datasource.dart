@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/services/connectivity_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user_model.dart';
 
@@ -15,14 +16,26 @@ abstract class FirebaseAuthDataSource {
 
 class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   final firebase_auth.FirebaseAuth firebaseAuth;
+  final ConnectivityService connectivityService;
 
-  FirebaseAuthDataSourceImpl({required this.firebaseAuth});
+  FirebaseAuthDataSourceImpl({
+    required this.firebaseAuth,
+    required this.connectivityService,
+  });
+
+  Future<void> _checkConnection() async {
+    final hasConnection = await connectivityService.hasConnection();
+    if (!hasConnection) {
+      throw Exception('Нет подключения к интернету');
+    }
+  }
 
   @override
   Future<UserModel> login({
     required String email,
     required String password,
   }) async {
+    await _checkConnection();
     try {
       final credential = await firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -47,6 +60,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     required String email,
     required String password,
   }) async {
+    await _checkConnection();
     try {
       final credential = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -68,6 +82,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
   @override
   Future<void> logout() async {
+    await _checkConnection();
     try {
       await firebaseAuth.signOut();
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -77,6 +92,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
   @override
   Future<UserModel?> getCurrentUser() async {
+    await _checkConnection();
     try {
       final user = firebaseAuth.currentUser;
       if (user == null) return null;
@@ -88,6 +104,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
   @override
   Future<bool> isLoggedIn() async {
+    await _checkConnection();
     return firebaseAuth.currentUser != null;
   }
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drawing_app/core/services/connectivity_service.dart';
 import '../models/drawing_model.dart';
 
 abstract class FirestoreDataSource {
@@ -11,12 +12,25 @@ abstract class FirestoreDataSource {
 
 class FirestoreDataSourceImpl implements FirestoreDataSource {
   final FirebaseFirestore firestore;
+  final ConnectivityService connectivityService;
+
   static const String collectionName = 'drawings';
 
-  FirestoreDataSourceImpl({required this.firestore});
+  FirestoreDataSourceImpl({
+    required this.firestore,
+    required this.connectivityService,
+  });
+
+  Future<void> _checkConnection() async {
+    final hasConnection = await connectivityService.hasConnection();
+    if (!hasConnection) {
+      throw Exception('Нет подключения к интернету');
+    }
+  }
 
   @override
   Future<DrawingModel> saveDrawing(DrawingModel drawing) async {
+    await _checkConnection();
     try {
       final docRef = await firestore
           .collection(collectionName)
@@ -31,6 +45,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
 
   @override
   Future<List<DrawingModel>> getDrawings(String userId) async {
+    await _checkConnection();
     try {
       final querySnapshot = await firestore
           .collection(collectionName)
@@ -48,6 +63,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
 
   @override
   Future<DrawingModel> getDrawingById(String drawingId) async {
+    await _checkConnection();
     try {
       final doc = await firestore
           .collection(collectionName)
@@ -66,6 +82,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
 
   @override
   Future<DrawingModel> updateDrawing(DrawingModel drawing) async {
+    await _checkConnection();
     try {
       await firestore.collection(collectionName).doc(drawing.id).update({
         'imageData': drawing.imageData,
@@ -85,6 +102,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
 
   @override
   Future<void> deleteDrawing(String drawingId) async {
+    await _checkConnection();
     try {
       await firestore.collection(collectionName).doc(drawingId).delete();
     } catch (e) {
