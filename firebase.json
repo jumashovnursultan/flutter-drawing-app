@@ -1,0 +1,25 @@
+{
+  "flutter": {
+    "platforms": {
+      "ios": {
+        "default": {
+          "projectId": "drawing-app-b4573",
+          "appId": "1:501009970219:ios:37ef919ba778b99572a66e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "drawing-app-b4573",
+          "configurations": {
+            "ios": "1:501009970219:ios:37ef919ba778b99572a66e"
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
