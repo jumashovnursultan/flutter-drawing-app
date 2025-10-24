@@ -14,7 +14,7 @@ import '../widgets/simple_color_picker.dart';
 import '../widgets/tool_selector.dart';
 
 class EditorScreen extends StatelessWidget {
-  final String? drawingId; // null = новый рисунок, не null = редактирование
+  final String? drawingId;
 
   const EditorScreen({super.key, this.drawingId});
 
@@ -39,7 +39,6 @@ class EditorScreenContent extends StatefulWidget {
 class _EditorScreenContentState extends State<EditorScreenContent> {
   final GlobalKey _canvasKey = GlobalKey();
 
-  // Получить размер холста
   Size _getCanvasSize() {
     final RenderBox? renderBox =
         _canvasKey.currentContext?.findRenderObject() as RenderBox?;
@@ -99,7 +98,6 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
   }
 
   Future<void> _handleSave(BuildContext context) async {
-    // Показываем диалог для ввода названия
     final title = await showDialog<String>(
       context: context,
       builder: (dialogContext) => const SaveDialog(),
@@ -107,11 +105,9 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
 
     if (title == null || !context.mounted) return;
 
-    // Получаем данные пользователя
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) return;
 
-    // Запускаем сохранение
     context.read<DrawingBloc>().add(
       SaveDrawingEvent(
         userId: authState.user.id,
@@ -161,19 +157,35 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
           widget.drawingId == null ? 'Новый рисунок' : 'Редактирование',
         ),
         actions: [
-          // Импорт
           IconButton(
             icon: const Icon(Icons.image),
             tooltip: 'Импорт',
             onPressed: () => _handleImport(context),
           ),
-          // Экспорт
+
+          BlocBuilder<DrawingBloc, DrawingState>(
+            builder: (context, state) {
+              if (state.canvasState.backgroundImage != null) {
+                return IconButton(
+                  icon: const Icon(Icons.image_not_supported),
+                  tooltip: 'Удалить фон',
+                  onPressed: () {
+                    context.read<DrawingBloc>().add(
+                      ClearBackgroundImageEvent(),
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+
           IconButton(
             icon: const Icon(Icons.share),
             tooltip: 'Экспорт',
             onPressed: () => _handleExport(context),
           ),
-          // Сохранить
+
           IconButton(
             icon: const Icon(Icons.save),
             tooltip: 'Сохранить',
@@ -199,8 +211,8 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                 backgroundColor: Colors.green,
               ),
             );
-            // Возвращаемся в галерею после сохранения
-            Navigator.pop(context, true); // true = обновить галерею
+
+            Navigator.pop(context, true);
           }
 
           if (state is DrawingExported) {
@@ -219,7 +231,6 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
             children: [
               Column(
                 children: [
-                  // Информация о текущем инструменте
                   Container(
                     padding: const EdgeInsets.all(8),
                     color: Colors.grey.shade100,
@@ -253,7 +264,6 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                     ),
                   ),
 
-                  // Холст для рисования
                   Expanded(
                     child: GestureDetector(
                       key: _canvasKey,
@@ -280,7 +290,6 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                     ),
                   ),
 
-                  // Кнопка размера кисти
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -296,7 +305,6 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                     ),
                   ),
 
-                  // Панель инструментов
                   ToolSelector(
                     isEraser: canvasState.isEraser,
                     onBrushTap: () {
@@ -322,7 +330,6 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                 ],
               ),
 
-              // Loading overlay
               if (state is DrawingSaving)
                 Container(
                   color: Colors.black54,

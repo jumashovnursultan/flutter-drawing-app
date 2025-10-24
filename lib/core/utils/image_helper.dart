@@ -16,7 +16,6 @@ class ImageHelper {
     return frame.image;
   }
 
-  /// Создание thumbnail
   static Future<String> createThumbnail(
     ui.Image image, {
     int maxWidth = 200,

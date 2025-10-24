@@ -27,9 +27,8 @@ final sl = GetIt.instance;
 Future<void> init() async {
   //! Core Services
   sl.registerLazySingleton(() => ConnectivityService());
-  //! Features - Auth
 
-  // Bloc
+  //! Features - Auth
   sl.registerFactory(
     () => AuthBloc(
       loginUseCase: sl(),
@@ -39,18 +38,15 @@ Future<void> init() async {
     ),
   );
 
-  // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
 
-  // Repository
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(dataSource: sl()),
   );
 
-  // Data sources
   sl.registerLazySingleton<FirebaseAuthDataSource>(
     () => FirebaseAuthDataSourceImpl(
       firebaseAuth: sl(),
@@ -63,20 +59,17 @@ Future<void> init() async {
   sl.registerFactory(
     () => DrawingBloc(
       exportDrawingUseCase: sl(),
-      saveDrawingUseCase: sl(), // Переиспользуем из Gallery
+      saveDrawingUseCase: sl(),
       imageService: sl(),
       notificationService: sl(),
     ),
   );
 
-  // Use cases
   sl.registerLazySingleton(() => ExportDrawingUseCase());
 
-  // Services
   sl.registerLazySingleton(() => ImageService());
   sl.registerLazySingleton(() => NotificationService());
 
-  // Bloc
   sl.registerFactory(
     () => GalleryBloc(
       getDrawingsUseCase: sl(),
@@ -85,17 +78,14 @@ Future<void> init() async {
     ),
   );
 
-  // Use cases
   sl.registerLazySingleton(() => GetDrawingsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteDrawingUseCase(sl()));
   sl.registerLazySingleton(() => SaveDrawingUseCase(sl()));
 
-  // Repository
   sl.registerLazySingleton<DrawingRepository>(
     () => DrawingRepositoryImpl(dataSource: sl()),
   );
 
-  // Data sources
   sl.registerLazySingleton<FirestoreDataSource>(
     () => FirestoreDataSourceImpl(firestore: sl(), connectivityService: sl()),
   );

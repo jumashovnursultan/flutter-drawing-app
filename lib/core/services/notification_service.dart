@@ -13,7 +13,6 @@ class NotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    // Настройки для iOS
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -58,7 +57,7 @@ class NotificationService {
     const notificationDetails = NotificationDetails(iOS: iosDetails);
 
     await _notifications.show(
-      0, // ID уведомления
+      0,
       title,
       'Рисунок "$drawingName" успешно сохранён!',
       notificationDetails,

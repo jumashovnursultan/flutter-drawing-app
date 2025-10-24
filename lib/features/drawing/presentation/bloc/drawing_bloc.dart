@@ -17,7 +17,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
   final ImageService imageService;
   final NotificationService notificationService;
 
-  // Текущий штрих (пока не завершен)
   List<DrawingPoint> _currentStroke = [];
 
   DrawingBloc({
@@ -35,35 +34,33 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     on<ClearCanvasEvent>(_onClearCanvas);
     on<UndoEvent>(_onUndo);
     on<ImportImageEvent>(_onImportImage);
+    on<SetBackgroundImageEvent>(_onSetBackgroundImage);
+    on<ClearBackgroundImageEvent>(_onClearBackgroundImage);
     on<ExportDrawingEvent>(_onExportDrawing);
     on<SaveDrawingEvent>(_onSaveDrawing);
   }
 
-  /// Создание Paint объекта для текущей кисти
   Paint _getCurrentPaint() {
     return Paint()
       ..color = state.canvasState.isEraser
-          ? const Color(0xFFFFFFFF) // Белый для ластика
+          ? const Color(0xFFFFFFFF)
           : Color(state.canvasState.brushColor)
       ..strokeWidth = state.canvasState.brushSize
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
   }
 
-  /// Начало рисования
   void _onStartDrawing(StartDrawingEvent event, Emitter<DrawingState> emit) {
     _currentStroke = [
       DrawingPoint(offset: event.point, paint: _getCurrentPaint()),
     ];
   }
 
-  /// Продолжение рисования
   void _onDraw(DrawEvent event, Emitter<DrawingState> emit) {
     _currentStroke.add(
       DrawingPoint(offset: event.point, paint: _getCurrentPaint()),
     );
 
-    // Обновляем состояние с текущим штрихом
     final updatedStrokes = List<List<DrawingPoint>>.from(
       state.canvasState.strokes,
     )..add(List.from(_currentStroke));
@@ -73,7 +70,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     );
   }
 
-  /// Конец рисования
   void _onEndDrawing(EndDrawingEvent event, Emitter<DrawingState> emit) {
     if (_currentStroke.isEmpty) return;
 
@@ -88,7 +84,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     );
   }
 
-  /// Изменение размера кисти
   void _onChangeBrushSize(
     ChangeBrushSizeEvent event,
     Emitter<DrawingState> emit,
@@ -96,7 +91,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     emit(DrawingInProgress(state.canvasState.copyWith(brushSize: event.size)));
   }
 
-  /// Изменение цвета кисти
   void _onChangeBrushColor(
     ChangeBrushColorEvent event,
     Emitter<DrawingState> emit,
@@ -111,7 +105,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     );
   }
 
-  /// Переключение ластика
   void _onToggleEraser(ToggleEraserEvent event, Emitter<DrawingState> emit) {
     emit(
       DrawingInProgress(
@@ -120,12 +113,14 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     );
   }
 
-  /// Очистка холста
   void _onClearCanvas(ClearCanvasEvent event, Emitter<DrawingState> emit) {
-    emit(DrawingInProgress(state.canvasState.copyWith(strokes: [])));
+    emit(
+      DrawingInProgress(
+        state.canvasState.copyWith(strokes: [], clearBackground: true),
+      ),
+    );
   }
 
-  /// Отмена последнего штриха
   void _onUndo(UndoEvent event, Emitter<DrawingState> emit) {
     if (state.canvasState.strokes.isEmpty) return;
 
@@ -138,7 +133,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     );
   }
 
-  /// Импорт изображения из галереи
   Future<void> _onImportImage(
     ImportImageEvent event,
     Emitter<DrawingState> emit,
@@ -147,13 +141,31 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
       final image = await imageService.importFromGallery();
       if (image == null) return;
 
-      emit(DrawingInProgress(state.canvasState));
+      add(SetBackgroundImageEvent(image));
     } catch (e) {
       emit(DrawingError(state.canvasState, 'Ошибка импорта: $e'));
+      emit(DrawingInProgress(state.canvasState));
     }
   }
 
-  /// Экспорт через Share
+  void _onSetBackgroundImage(
+    SetBackgroundImageEvent event,
+    Emitter<DrawingState> emit,
+  ) {
+    emit(
+      DrawingInProgress(
+        state.canvasState.copyWith(backgroundImage: event.image, strokes: []),
+      ),
+    );
+  }
+
+  void _onClearBackgroundImage(
+    ClearBackgroundImageEvent event,
+    Emitter<DrawingState> emit,
+  ) {
+    emit(DrawingInProgress(state.canvasState.copyWith(clearBackground: true)));
+  }
+
   Future<void> _onExportDrawing(
     ExportDrawingEvent event,
     Emitter<DrawingState> emit,
@@ -173,7 +185,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
         (image) async {
           await imageService.shareImage(image);
 
-          // ✅ ДОБАВЬ ЭТО: Показываем уведомление
           await notificationService.showDrawingExportedNotification();
 
           emit(DrawingExported(state.canvasState));
@@ -186,7 +197,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     }
   }
 
-  /// Сохранение в Firebase + галерею
   Future<void> _onSaveDrawing(
     SaveDrawingEvent event,
     Emitter<DrawingState> emit,
@@ -212,7 +222,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
             maxHeight: 200,
           );
 
-          // 4. Сохраняем в Firebase
           final saveResult = await saveDrawingUseCase(
             userId: event.userId,
             title: event.title,
@@ -226,7 +235,6 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
               emit(DrawingError(state.canvasState, failure.message));
             },
             (drawing) async {
-              // 5. Сохраняем в галерею устройства
               try {
                 await imageService.saveToGallery(image);
               } catch (e) {}

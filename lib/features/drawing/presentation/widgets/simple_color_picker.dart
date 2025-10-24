@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-class SimpleColorPicker extends StatelessWidget {
+class SimpleColorPicker extends StatefulWidget {
   final Color selectedColor;
   final ValueChanged<Color> onColorSelected;
 
@@ -10,6 +10,19 @@ class SimpleColorPicker extends StatelessWidget {
     required this.selectedColor,
     required this.onColorSelected,
   });
+
+  @override
+  State<SimpleColorPicker> createState() => _SimpleColorPickerState();
+}
+
+class _SimpleColorPickerState extends State<SimpleColorPicker> {
+  late Color _currentColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentColor = widget.selectedColor;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,33 +36,19 @@ class SimpleColorPicker extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: AppColors.drawingPalette.map((color) {
-              final isSelected = color.value == selectedColor.value;
-              return GestureDetector(
-                onTap: () => onColorSelected(color),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected
-                          ? Colors.deepPurple
-                          : Colors.grey.shade300,
-                      width: isSelected ? 3 : 2,
-                    ),
-                  ),
-                  child: isSelected
-                      ? const Icon(Icons.check, color: Colors.white)
-                      : null,
-                ),
-              );
-            }).toList(),
+
+          ColorPicker(
+            pickerColor: _currentColor,
+            onColorChanged: (color) {
+              setState(() => _currentColor = color);
+              widget.onColorSelected(color);
+            },
+            pickerAreaHeightPercent: 0.8,
+            enableAlpha: false,
+            displayThumbColor: true,
+            paletteType: PaletteType.hueWheel,
           ),
+
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),

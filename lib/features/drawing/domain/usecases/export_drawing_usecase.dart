@@ -13,10 +13,22 @@ class ExportDrawingUseCase {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
 
-      canvas.drawRect(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        Paint()..color = const ui.Color(0xFFFFFFFF),
-      );
+      if (canvasState.backgroundImage != null) {
+        final image = canvasState.backgroundImage!;
+        final src = Rect.fromLTWH(
+          0,
+          0,
+          image.width.toDouble(),
+          image.height.toDouble(),
+        );
+        final dst = Rect.fromLTWH(0, 0, size.width, size.height);
+        canvas.drawImageRect(image, src, dst, Paint());
+      } else {
+        canvas.drawRect(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          Paint()..color = const ui.Color(0xFFFFFFFF),
+        );
+      }
 
       for (final stroke in canvasState.strokes) {
         if (stroke.isEmpty) continue;

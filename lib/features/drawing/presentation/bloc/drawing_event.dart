@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:equatable/equatable.dart';
 
 abstract class DrawingEvent extends Equatable {
@@ -79,3 +80,14 @@ class SaveDrawingEvent extends DrawingEvent {
   @override
   List<Object?> get props => [userId, userEmail, title, canvasSize];
 }
+
+class SetBackgroundImageEvent extends DrawingEvent {
+  final ui.Image image;
+
+  const SetBackgroundImageEvent(this.image);
+
+  @override
+  List<Object?> get props => [image];
+}
+
+class ClearBackgroundImageEvent extends DrawingEvent {}
