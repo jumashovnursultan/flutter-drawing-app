@@ -35,6 +35,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     on<UndoEvent>(_onUndo);
     on<ImportImageEvent>(_onImportImage);
     on<SetBackgroundImageEvent>(_onSetBackgroundImage);
+    on<LoadExistingDrawingEvent>(_onLoadExistingDrawing);
     on<ClearBackgroundImageEvent>(_onClearBackgroundImage);
     on<ExportDrawingEvent>(_onExportDrawing);
     on<SaveDrawingEvent>(_onSaveDrawing);
@@ -159,6 +160,24 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
     );
   }
 
+  Future<void> _onLoadExistingDrawing(
+    LoadExistingDrawingEvent event,
+    Emitter<DrawingState> emit,
+  ) async {
+    try {
+      final image = await ImageHelper.base64ToImage(event.imageBase64);
+
+      emit(
+        DrawingInProgress(
+          state.canvasState.copyWith(backgroundImage: image, strokes: []),
+        ),
+      );
+    } catch (e) {
+      emit(DrawingError(state.canvasState, 'Ошибка загрузки рисунка: $e'));
+      emit(DrawingInProgress(state.canvasState));
+    }
+  }
+
   void _onClearBackgroundImage(
     ClearBackgroundImageEvent event,
     Emitter<DrawingState> emit,
@@ -185,7 +204,10 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
         (image) async {
           await imageService.shareImage(image);
 
-          await notificationService.showDrawingExportedNotification();
+          await notificationService.showNotification(
+            title: '🎨 Рисунок сохранён',
+            body: '',
+          );
 
           emit(DrawingExported(state.canvasState));
           emit(DrawingInProgress(state.canvasState));
@@ -228,6 +250,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
             imageData: imageBase64,
             thumbnail: thumbnailBase64,
             author: event.userEmail,
+            drawingId: event.drawingId,
           );
 
           await saveResult.fold(
@@ -239,13 +262,18 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
                 await imageService.saveToGallery(image);
               } catch (e) {}
 
-              await notificationService.showDrawingSavedNotification(
+              await notificationService.showNotification(
                 title: '🎨 Рисунок сохранён',
-                drawingName: event.title,
+                body: event.title,
               );
 
               emit(
-                DrawingSaved(state.canvasState, 'Рисунок сохранен успешно!'),
+                DrawingSaved(
+                  state.canvasState,
+                  event.drawingId != null
+                      ? 'Рисунок обновлен'
+                      : 'Рисунок сохранен',
+                ),
               );
 
               await Future.delayed(const Duration(seconds: 1));

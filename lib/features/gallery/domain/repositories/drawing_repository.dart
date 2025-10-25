@@ -9,6 +9,7 @@ abstract class DrawingRepository {
     required String imageData,
     required String thumbnail,
     required String author,
+    String? drawingId,
   });
 
   Future<Either<Failure, List<Drawing>>> getDrawings(String userId);

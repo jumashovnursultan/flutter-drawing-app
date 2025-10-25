@@ -1,3 +1,7 @@
+import 'package:drawing_app/core/constants/app_strings.dart';
+import 'package:drawing_app/core/widgets/custom_app_bar.dart';
+import 'package:drawing_app/core/widgets/gradient_background.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,13 +19,22 @@ import '../widgets/tool_selector.dart';
 
 class EditorScreen extends StatelessWidget {
   final String? drawingId;
+  final String? imageBase64;
 
-  const EditorScreen({super.key, this.drawingId});
+  const EditorScreen({super.key, this.drawingId, this.imageBase64});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => di.sl<DrawingBloc>(),
+      create: (context) {
+        final bloc = di.sl<DrawingBloc>();
+
+        if (imageBase64 != null) {
+          bloc.add(LoadExistingDrawingEvent(imageBase64!));
+        }
+
+        return bloc;
+      },
       child: EditorScreenContent(drawingId: drawingId),
     );
   }
@@ -60,50 +73,8 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
     );
   }
 
-  void _showBrushSizeSlider(BuildContext context, double currentSize) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (bottomSheetContext) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Размер кисти',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            BrushSizeSlider(
-              brushSize: currentSize,
-              onChanged: (size) {
-                context.read<DrawingBloc>().add(ChangeBrushSizeEvent(size));
-              },
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(bottomSheetContext),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Готово'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _handleSave(BuildContext context) async {
-    final title = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => const SaveDialog(),
-    );
-
-    if (title == null || !context.mounted) return;
+    if (!context.mounted) return;
 
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) return;
@@ -112,8 +83,9 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
       SaveDrawingEvent(
         userId: authState.user.id,
         userEmail: authState.user.email,
-        title: title,
+        title: DateTime.now().toIso8601String(),
         canvasSize: _getCanvasSize(),
+        drawingId: widget.drawingId,
       ),
     );
   }
@@ -152,44 +124,14 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.drawingId == null ? 'Новый рисунок' : 'Редактирование',
-        ),
+      appBar: CustomAppBar(
+        title: widget.drawingId == null
+            ? AppStrings.newImage
+            : AppStrings.editing,
         actions: [
           IconButton(
-            icon: const Icon(Icons.image),
-            tooltip: 'Импорт',
-            onPressed: () => _handleImport(context),
-          ),
-
-          BlocBuilder<DrawingBloc, DrawingState>(
-            builder: (context, state) {
-              if (state.canvasState.backgroundImage != null) {
-                return IconButton(
-                  icon: const Icon(Icons.image_not_supported),
-                  tooltip: 'Удалить фон',
-                  onPressed: () {
-                    context.read<DrawingBloc>().add(
-                      ClearBackgroundImageEvent(),
-                    );
-                  },
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-
-          IconButton(
-            icon: const Icon(Icons.share),
-            tooltip: 'Экспорт',
-            onPressed: () => _handleExport(context),
-          ),
-
-          IconButton(
-            icon: const Icon(Icons.save),
-            tooltip: 'Сохранить',
             onPressed: () => _handleSave(context),
+            icon: Icon(Icons.check),
           ),
         ],
       ),
@@ -226,133 +168,157 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
         },
         builder: (context, state) {
           final canvasState = state.canvasState;
-
-          return Stack(
-            children: [
-              Column(
+          return GradientBackground(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Stack(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.grey.shade100,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: canvasState.isEraser
-                                ? Colors.white
-                                : Color(canvasState.brushColor),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey),
+                  Column(
+                    children: [
+                      SizedBox(height: 24),
+
+                      BlocBuilder<DrawingBloc, DrawingState>(
+                        builder: (context, state) {
+                          return ToolSelector(
+                            isEraser: canvasState.isEraser,
+                            hasBackgroundImage:
+                                state.canvasState.backgroundImage != null,
+
+                            onBrushTap: () {
+                              if (canvasState.isEraser) {
+                                context.read<DrawingBloc>().add(
+                                  ToggleEraserEvent(),
+                                );
+                              }
+                            },
+                            onEraserTap: () {
+                              if (!canvasState.isEraser) {
+                                context.read<DrawingBloc>().add(
+                                  ToggleEraserEvent(),
+                                );
+                              }
+                            },
+                            onExportTap: () async => _handleExport(context),
+                            onImportTap: () => _handleImport(context),
+                            onPaletteTap: () => _showColorPicker(
+                              context,
+                              Color(canvasState.brushColor),
+                            ),
+                            onClearTap: () => _showClearConfirmation(context),
+                            onClearBackground: () => context
+                                .read<DrawingBloc>()
+                                .add(ClearBackgroundImageEvent()),
+                            onUndoTap: () =>
+                                context.read<DrawingBloc>().add(UndoEvent()),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 24),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: GestureDetector(
+                            key: _canvasKey,
+                            onPanStart: (details) {
+                              context.read<DrawingBloc>().add(
+                                StartDrawingEvent(details.localPosition),
+                              );
+                            },
+                            onPanUpdate: (details) {
+                              context.read<DrawingBloc>().add(
+                                DrawEvent(details.localPosition),
+                              );
+                            },
+                            onPanEnd: (details) {
+                              context.read<DrawingBloc>().add(
+                                EndDrawingEvent(),
+                              );
+                            },
+                            child: Container(
+                              color: Colors.grey.shade200,
+                              child: CustomPaint(
+                                painter: DrawingCanvas(
+                                  canvasState: canvasState,
+                                ),
+                                child: Container(),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          canvasState.isEraser ? 'Ластик' : 'Кисть',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 16),
-                        const Icon(Icons.circle, size: 12),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Размер: ${canvasState.brushSize.round()}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Expanded(
-                    child: GestureDetector(
-                      key: _canvasKey,
-                      onPanStart: (details) {
-                        context.read<DrawingBloc>().add(
-                          StartDrawingEvent(details.localPosition),
-                        );
-                      },
-                      onPanUpdate: (details) {
-                        context.read<DrawingBloc>().add(
-                          DrawEvent(details.localPosition),
-                        );
-                      },
-                      onPanEnd: (details) {
-                        context.read<DrawingBloc>().add(EndDrawingEvent());
-                      },
-                      child: Container(
-                        color: Colors.grey.shade200,
-                        child: CustomPaint(
-                          painter: DrawingCanvas(canvasState: canvasState),
-                          child: Container(),
-                        ),
                       ),
-                    ),
-                  ),
+                      SizedBox(height: 20),
+                      BrushSizeSlider(
+                        brushSize: canvasState.brushSize,
+                        onChanged: (size) {
+                          context.read<DrawingBloc>().add(
+                            ChangeBrushSizeEvent(size),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(8),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: BrushSizeSlider(
-                      brushSize: canvasState.brushSize,
-                      onChanged: (size) {
-                        context.read<DrawingBloc>().add(
-                          ChangeBrushSizeEvent(size),
-                        );
-                      },
-                    ),
-                  ),
-
-                  ToolSelector(
-                    isEraser: canvasState.isEraser,
-                    onBrushTap: () {
-                      if (canvasState.isEraser) {
-                        context.read<DrawingBloc>().add(ToggleEraserEvent());
-                      }
-                    },
-                    onEraserTap: () {
-                      if (!canvasState.isEraser) {
-                        context.read<DrawingBloc>().add(ToggleEraserEvent());
-                      }
-                    },
-                    onColorPickerTap: () {
-                      _showColorPicker(context, Color(canvasState.brushColor));
-                    },
-                    onUndoTap: () {
-                      context.read<DrawingBloc>().add(UndoEvent());
-                    },
-                    onClearTap: () {
-                      _showClearConfirmation(context);
-                    },
-                  ),
-                ],
-              ),
-
-              if (state is DrawingSaving)
-                Container(
-                  color: Colors.black54,
-                  child: const Center(
-                    child: Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(),
-                            SizedBox(height: 16),
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: canvasState.isEraser
+                                    ? Colors.white
+                                    : Color(canvasState.brushColor),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.grey),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             Text(
-                              'Сохранение...',
-                              style: TextStyle(fontSize: 16),
+                              canvasState.isEraser ? 'Ластик' : 'Кисть',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            const Icon(Icons.circle, size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Размер: ${canvasState.brushSize.round()}',
+                              style: const TextStyle(fontSize: 12),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                      SizedBox(height: 30),
+                    ],
                   ),
-                ),
-            ],
+
+                  if (state is DrawingSaving)
+                    Container(
+                      color: Colors.black54,
+                      child: const Center(
+                        child: Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Сохранение...',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           );
         },
       ),

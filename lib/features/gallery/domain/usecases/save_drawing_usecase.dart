@@ -14,6 +14,7 @@ class SaveDrawingUseCase {
     required String imageData,
     required String thumbnail,
     required String author,
+    String? drawingId,
   }) async {
     return await repository.saveDrawing(
       userId: userId,
@@ -21,6 +22,7 @@ class SaveDrawingUseCase {
       imageData: imageData,
       thumbnail: thumbnail,
       author: author,
+      drawingId: drawingId,
     );
   }
 }

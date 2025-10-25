@@ -1,13 +1,16 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:drawing_app/core/services/notification_service.dart';
+import 'package:drawing_app/core/theme/app_theme.dart';
 import 'package:drawing_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:drawing_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:drawing_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:drawing_app/features/gallery/presentation/screens/gallery_screen.dart';
 import 'package:drawing_app/injection_container/injection_container.dart' as di;
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -45,31 +48,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => di.sl<AuthBloc>()..add(CheckAuthStatusEvent()),
-      child: MaterialApp(
-        title: 'Drawing App',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (!hasInternet) {
-              return _NoInternetScreen();
-            }
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: MaterialApp(
+          title: 'Drawing App',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          home: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (!hasInternet) {
+                return _NoInternetScreen();
+              }
 
-            if (state is AuthLoading) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
+              if (state is AuthStatusChecking) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-            if (state is AuthAuthenticated) {
-              return const GalleryScreen();
-            }
+              if (state is AuthAuthenticated) {
+                return const GalleryScreen();
+              }
 
-            return const LoginScreen();
-          },
+              return const LoginScreen();
+            },
+          ),
         ),
       ),
     );

@@ -28,7 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatusEvent event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(AuthStatusChecking());
 
     final result = await getCurrentUserUseCase();
 
@@ -61,6 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await registerUseCase(
       email: event.email,
       password: event.password,
+      name: event.name,
     );
 
     result.fold(

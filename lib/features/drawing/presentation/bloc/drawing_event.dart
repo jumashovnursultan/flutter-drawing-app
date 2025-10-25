@@ -69,16 +69,18 @@ class SaveDrawingEvent extends DrawingEvent {
   final String userEmail;
   final String title;
   final Size canvasSize;
+  final String? drawingId;
 
   const SaveDrawingEvent({
     required this.userId,
     required this.userEmail,
     required this.title,
     required this.canvasSize,
+    this.drawingId,
   });
 
   @override
-  List<Object?> get props => [userId, userEmail, title, canvasSize];
+  List<Object?> get props => [userId, userEmail, title, canvasSize, drawingId];
 }
 
 class SetBackgroundImageEvent extends DrawingEvent {
@@ -88,6 +90,15 @@ class SetBackgroundImageEvent extends DrawingEvent {
 
   @override
   List<Object?> get props => [image];
+}
+
+class LoadExistingDrawingEvent extends DrawingEvent {
+  final String imageBase64;
+
+  const LoadExistingDrawingEvent(this.imageBase64);
+
+  @override
+  List<Object?> get props => [imageBase64];
 }
 
 class ClearBackgroundImageEvent extends DrawingEvent {}

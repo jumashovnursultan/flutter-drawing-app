@@ -1,89 +1,62 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
-  static final NotificationService _instance = NotificationService._internal();
-  factory NotificationService() => _instance;
-  NotificationService._internal();
-
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
-  bool _initialized = false;
-
   Future<void> initialize() async {
-    if (_initialized) return;
-
-    const iosSettings = DarwinInitializationSettings(
+    const initializationSettingsIOS = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    const initSettings = InitializationSettings(iOS: iosSettings);
-
-    await _notifications.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: _onNotificationTapped,
+    const initializationSettings = InitializationSettings(
+      iOS: initializationSettingsIOS,
     );
 
-    await _requestIOSPermissions();
-
-    _initialized = true;
+    await _notifications.initialize(initializationSettings);
+    await _requestPermissions();
   }
 
-  Future<void> _requestIOSPermissions() async {
-    await _notifications
+  Future<void> _requestPermissions() async {
+    final iosImplementation = _notifications
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
-        >()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+        >();
+
+    final granted = await iosImplementation?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    print('🔔 Notification permissions: $granted');
   }
 
-  void _onNotificationTapped(NotificationResponse response) {
-    print('Notification tapped: ${response.payload}');
-  }
-
-  Future<void> showDrawingSavedNotification({
+  Future<void> showNotification({
     required String title,
-    required String drawingName,
+    required String body,
   }) async {
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      sound: 'default',
+    print('🔔 Showing notification: $title - $body');
+
+    const notificationDetails = NotificationDetails(
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: 'default',
+      ),
     );
 
-    const notificationDetails = NotificationDetails(iOS: iosDetails);
+    try {
+      final id = DateTime.now().millisecondsSinceEpoch.remainder(100000);
 
-    await _notifications.show(
-      0,
-      title,
-      'Рисунок "$drawingName" успешно сохранён!',
-      notificationDetails,
-      payload: drawingName,
-    );
-  }
+      await _notifications.show(id, title, body, notificationDetails);
 
-  Future<void> showDrawingExportedNotification() async {
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      sound: 'default',
-    );
-
-    const notificationDetails = NotificationDetails(iOS: iosDetails);
-
-    await _notifications.show(
-      1,
-      '✅ Экспорт завершён',
-      'Рисунок готов к отправке!',
-      notificationDetails,
-    );
-  }
-
-  Future<void> cancelAll() async {
-    await _notifications.cancelAll();
+      print('✅ Notification shown with ID: $id');
+    } catch (e) {
+      print('❌ Notification error: $e');
+    }
   }
 }

@@ -1,8 +1,11 @@
+import 'package:drawing_app/core/widgets/custom_gradient_button.dart';
+import 'package:drawing_app/core/widgets/gradient_background.dart';
 import 'package:drawing_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:drawing_app/features/auth/presentation/widgets/custom_button.dart';
 import 'package:drawing_app/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/validators.dart';
 
@@ -43,114 +46,91 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          final isLoading = state is AuthLoading;
+    return GradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            final isLoading = state is AuthLoading;
 
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Icon(Icons.brush, size: 80, color: Colors.deepPurple),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppStrings.appName,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Spacer(flex: 5),
+                      Text(
+                        AppStrings.loginTitle,
+                        style: GoogleFonts.pressStart2p(
+                          fontSize: 20,
+                          shadows: [
+                            Shadow(color: Color(0xFF9D4EDD), blurRadius: 40),
+                            Shadow(color: Color(0xFF9D4EDD), blurRadius: 30),
+                            Shadow(color: Color(0xFFB565F2), blurRadius: 20),
 
-                    CustomTextField(
-                      controller: _emailController,
-                      label: AppStrings.email,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: Validators.validateEmail,
-                      enabled: !isLoading,
-                    ),
-                    const SizedBox(height: 16),
-
-                    CustomTextField(
-                      controller: _passwordController,
-                      label: AppStrings.password,
-                      obscureText: _obscurePassword,
-                      validator: Validators.validatePassword,
-                      enabled: !isLoading,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
+                            Shadow(color: Color(0xFFD4A5FF), blurRadius: 10),
+                          ],
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      SizedBox(height: 20),
+                      CustomTextField(
+                        controller: _emailController,
+                        hint: AppStrings.enterEmail,
+                        label: AppStrings.email,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: Validators.validateEmail,
+                      ),
 
-                    CustomButton(
-                      text: AppStrings.login,
-                      onPressed: _handleLogin,
-                      isLoading: isLoading,
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.dontHaveAccount,
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                        TextButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => BlocProvider.value(
-                                        value: context.read<AuthBloc>(),
-                                        child: const RegisterScreen(),
-                                      ),
-                                    ),
-                                  );
-                                },
-                          child: Text(
-                            AppStrings.register,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                      CustomTextField(
+                        controller: _passwordController,
+                        hint: AppStrings.enterPassword,
+                        label: AppStrings.password,
+                        obscureText: _obscurePassword,
+                        validator: Validators.validatePassword,
+                      ),
+                      Spacer(flex: 4),
+
+                      CustomGradientButton(
+                        text: AppStrings.login,
+                        onPressed: _handleLogin,
+                        isLoading: isLoading,
+                      ),
+                      const SizedBox(height: 19),
+                      CustomButton(
+                        text: AppStrings.register,
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider.value(
+                              value: context.read<AuthBloc>(),
+                              child: const RegisterScreen(),
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

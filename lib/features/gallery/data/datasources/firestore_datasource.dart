@@ -31,14 +31,40 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
   @override
   Future<DrawingModel> saveDrawing(DrawingModel drawing) async {
     await _checkConnection();
-    try {
-      final docRef = await firestore
-          .collection(collectionName)
-          .add(drawing.toJson());
 
-      final doc = await docRef.get();
-      return DrawingModel.fromFirestore(doc);
+    try {
+      if (drawing.id.isNotEmpty) {
+        final updateData = drawing.toJson();
+
+        updateData.remove('id');
+
+        await firestore
+            .collection(collectionName)
+            .doc(drawing.id)
+            .update(updateData);
+
+        print('✅ Рисунок обновлен: ${drawing.id}');
+
+        final doc = await firestore
+            .collection(collectionName)
+            .doc(drawing.id)
+            .get();
+
+        return DrawingModel.fromFirestore(doc);
+      } else {
+        final newDrawing = drawing;
+
+        final docRef = await firestore
+            .collection(collectionName)
+            .add(newDrawing.toJson());
+
+        print('✅ Новый рисунок создан: ${docRef.id}');
+
+        final doc = await docRef.get();
+        return DrawingModel.fromFirestore(doc);
+      }
     } catch (e) {
+      print('❌ Ошибка сохранения: $e');
       throw Exception('Ошибка сохранения рисунка: $e');
     }
   }

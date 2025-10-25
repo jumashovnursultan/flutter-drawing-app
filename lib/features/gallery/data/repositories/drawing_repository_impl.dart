@@ -17,10 +17,11 @@ class DrawingRepositoryImpl implements DrawingRepository {
     required String imageData,
     required String thumbnail,
     required String author,
+    String? drawingId,
   }) async {
     try {
       final drawing = DrawingModel(
-        id: '',
+        id: drawingId ?? '',
         userId: userId,
         title: title,
         imageData: imageData,

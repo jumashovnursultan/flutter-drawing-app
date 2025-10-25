@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 
-class CustomButton extends StatelessWidget {
+class CustomGradientButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed;
+  final VoidCallback onPressed;
   final bool isLoading;
-  final bool isOutlined;
-  final bool isActive;
 
-  const CustomButton({
+  const CustomGradientButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
-    this.isOutlined = false,
-    this.isActive = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 48,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF8924E7), Color(0xFF6A46F9)],
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFEEEEEE).withOpacity(isActive ? 1 : 0.5),
-          disabledBackgroundColor: Color(0xFFEEEEEE).withOpacity(0.5),
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: isLoading
@@ -42,7 +46,7 @@ class CustomButton extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF101D26),
+                  color: Colors.white,
                 ),
               ),
       ),
