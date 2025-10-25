@@ -5,6 +5,11 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
+    const initializationSettingsAndroid = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+
+    // iOS настройки
     const initializationSettingsIOS = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -12,6 +17,7 @@ class NotificationService {
     );
 
     const initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
 
@@ -25,13 +31,18 @@ class NotificationService {
           IOSFlutterLocalNotificationsPlugin
         >();
 
-    final granted = await iosImplementation?.requestPermissions(
+    await iosImplementation?.requestPermissions(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    print('🔔 Notification permissions: $granted');
+    final androidImplementation = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    await androidImplementation?.requestNotificationsPermission();
   }
 
   Future<void> showNotification({
@@ -40,13 +51,26 @@ class NotificationService {
   }) async {
     print('🔔 Showing notification: $title - $body');
 
+    const androidDetails = AndroidNotificationDetails(
+      'drawing_app_channel',
+      'Drawing App Notifications',
+      channelDescription: 'Notifications for drawing app events',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      sound: 'default',
+    );
+
     const notificationDetails = NotificationDetails(
-      iOS: DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        sound: 'default',
-      ),
+      android: androidDetails,
+      iOS: iosDetails,
     );
 
     try {

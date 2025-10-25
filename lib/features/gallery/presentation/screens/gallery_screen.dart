@@ -140,26 +140,6 @@ class GalleryScreenContent extends StatelessWidget {
               icon: SvgPicture.asset('assets/icons/paint_roller.svg'),
               onPressed: () => _onCreateNew(context),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                final notificationService = di.sl<NotificationService>();
-
-                await notificationService.showNotification(
-                  title: 'ТЕСТ СРАЗУ',
-                  body: 'Немедленное уведомление в ${DateTime.now()}',
-                );
-
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Уведомление отправлено!'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
-                }
-              },
-              child: Text('data'),
-            ),
           ],
         ),
 
