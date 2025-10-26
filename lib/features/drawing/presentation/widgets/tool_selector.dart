@@ -1,8 +1,4 @@
-import 'package:drawing_app/features/drawing/presentation/bloc/drawing_bloc.dart';
-import 'package:drawing_app/features/drawing/presentation/bloc/drawing_event.dart';
-import 'package:drawing_app/features/drawing/presentation/bloc/drawing_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ToolSelector extends StatelessWidget {

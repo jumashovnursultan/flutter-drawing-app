@@ -1,6 +1,6 @@
 import 'package:drawing_app/core/cache/thumbnail_cache.dart';
 import 'package:drawing_app/core/constants/app_strings.dart';
-import 'package:drawing_app/core/services/notification_service.dart';
+
 import 'package:drawing_app/core/widgets/custom_app_bar.dart';
 import 'package:drawing_app/core/widgets/custom_gradient_button.dart';
 import 'package:drawing_app/core/widgets/gradient_background.dart';

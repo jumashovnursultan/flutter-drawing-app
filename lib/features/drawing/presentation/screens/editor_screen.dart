@@ -13,7 +13,6 @@ import '../bloc/drawing_event.dart';
 import '../bloc/drawing_state.dart';
 import '../widgets/brush_size_slider.dart';
 import '../widgets/drawing_canvas.dart';
-import '../widgets/save_dialog.dart';
 import '../widgets/simple_color_picker.dart';
 import '../widgets/tool_selector.dart';
 
