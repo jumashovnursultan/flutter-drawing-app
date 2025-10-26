@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/cache/thumbnail_cache.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/delete_drawing_usecase.dart';
 import '../../domain/usecases/get_drawings_usecase.dart';
@@ -63,6 +64,7 @@ class GalleryBloc extends Bloc<GalleryEvent, GalleryState> {
           } else {
             emit(GalleryLoaded(updatedDrawings));
           }
+          ThumbnailCache().removeThumbnail(event.drawingId);
         },
       );
     }

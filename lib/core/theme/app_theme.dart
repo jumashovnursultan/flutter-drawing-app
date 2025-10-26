@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../constants/app_colors.dart';
 
 class AppTheme {
   AppTheme._();
@@ -11,8 +10,8 @@ class AppTheme {
       useMaterial3: true,
 
       colorScheme: ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
+        primary: Color(0xFF6200EE),
+        secondary: Color(0xFF03DAC6),
 
         background: Colors.transparent,
         error: Colors.red,

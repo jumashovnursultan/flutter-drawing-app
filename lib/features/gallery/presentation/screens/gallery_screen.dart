@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/cache/thumbnail_cache.dart';
 import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:drawing_app/core/services/notification_service.dart';
 import 'package:drawing_app/core/widgets/custom_app_bar.dart';
@@ -43,20 +44,20 @@ class GalleryScreen extends StatelessWidget {
 class GalleryScreenContent extends StatelessWidget {
   const GalleryScreenContent({super.key});
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    final shouldLogout = await showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Выход'),
         content: const Text('Вы уверены, что хотите выйти?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Отмена'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(dialogContext);
+              Navigator.pop(dialogContext, true);
               context.read<AuthBloc>().add(LogoutEvent());
             },
             child: const Text('Выйти', style: TextStyle(color: Colors.red)),
@@ -64,6 +65,9 @@ class GalleryScreenContent extends StatelessWidget {
         ],
       ),
     );
+    if (shouldLogout == true && context.mounted) {
+      ThumbnailCache().clearCache();
+    }
   }
 
   void _showDeleteDialog(BuildContext context, String drawingId, String title) {

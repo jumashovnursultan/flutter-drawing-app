@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:drawing_app/core/cache/thumbnail_cache.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/drawing.dart';
 
@@ -16,6 +17,16 @@ class DrawingGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cache = ThumbnailCache();
+    var thumbnailBytes = cache.getThumbnail(drawing.id);
+
+    if (thumbnailBytes == null) {
+      thumbnailBytes = base64Decode(drawing.thumbnail);
+      cache.cacheThumbnail(drawing.id, drawing.thumbnail);
+      print('🔄 Cached thumbnail for: ${drawing.title}');
+    } else {
+      print('✅ Using cached thumbnail for: ${drawing.title}');
+    }
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -27,7 +38,7 @@ class DrawingGridItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: drawing.thumbnail.isNotEmpty
               ? Image.memory(
-                  base64Decode(drawing.thumbnail),
+                  thumbnailBytes,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
