@@ -122,7 +122,7 @@ class GalleryScreenContent extends StatelessWidget {
         builder: (context) =>
             EditorScreen(drawingId: drawing.id, imageBase64: drawing.imageData),
       ),
-    ).then((shouldRefresh) async {
+    ).then((shouldRefresh) {
       if (shouldRefresh == true) {
         ThumbnailCache().removeThumbnail(drawing.id);
         final authState = context.read<AuthBloc>().state;
