@@ -256,6 +256,15 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
             maxHeight: 200,
           );
 
+          print(
+            '🔴 FULL IMAGE Base64 size: ${imageBase64.length} bytes = ${(imageBase64.length / 1024 / 1024).toStringAsFixed(2)} MB',
+          );
+
+          print(
+            '🟢 THUMBNAIL Base64 size: ${thumbnailBase64.length} bytes = ${(thumbnailBase64.length / 1024 / 1024).toStringAsFixed(2)} MB',
+          );
+          print(thumbnailBase64.length);
+
           final saveResult = await saveDrawingUseCase(
             userId: event.userId,
             title: event.title,

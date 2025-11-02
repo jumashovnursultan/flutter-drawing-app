@@ -120,7 +120,7 @@ class GalleryScreenContent extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            EditorScreen(drawingId: drawing.id, imageBase64: drawing.thumbnail),
+            EditorScreen(drawingId: drawing.id, imageBase64: drawing.imageData),
       ),
     ).then((shouldRefresh) {
       if (shouldRefresh == true) {
