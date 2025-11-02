@@ -66,6 +66,7 @@ class AppStrings {
   static String brushSize(int size) => 'Размер: $size';
   static const String saving = 'Сохранение...';
   static const String selectColor = 'Выберите цвет';
+  static const String saveToGalleryFailed = 'Не удалось сохранить в галерею';
 
   // Drawing - Errors
   static String importImageError(String error) =>

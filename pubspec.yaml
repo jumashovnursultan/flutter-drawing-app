@@ -46,7 +46,9 @@ dependencies:
   # Генератор иконок
   flutter_launcher_icons: 0.14.4
 
+  
 
+  image_gallery_saver: 2.0.3 
   http: 1.2.2
 
 

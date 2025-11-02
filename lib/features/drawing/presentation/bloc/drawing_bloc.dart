@@ -210,7 +210,9 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
           emit(DrawingError(state.canvasState, failure.message));
         },
         (image) async {
-          await imageService.shareImage(image);
+          await imageService.saveToGallery(image);
+
+          // for share await imageService.shareImage(image, sharePositionOrigin: event.sharePositionOrigin);
 
           await notificationService.showNotification(
             title: AppStrings.drawingSaved,

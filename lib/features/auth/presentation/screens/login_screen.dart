@@ -49,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: true,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
@@ -64,69 +65,92 @@ class _LoginScreenState extends State<LoginScreen> {
             final isLoading = state is AuthLoading;
 
             return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Spacer(flex: 5),
-                      Text(
-                        AppStrings.loginTitle,
-                        style: GoogleFonts.pressStart2p(
-                          fontSize: 20,
-                          shadows: [
-                            Shadow(color: Color(0xFF9D4EDD), blurRadius: 40),
-                            Shadow(color: Color(0xFF9D4EDD), blurRadius: 30),
-                            Shadow(color: Color(0xFFB565F2), blurRadius: 20),
-
-                            Shadow(color: Color(0xFFD4A5FF), blurRadius: 10),
-                          ],
-                        ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
                       ),
-                      SizedBox(height: 20),
-                      CustomTextField(
-                        controller: _emailController,
-                        hint: AppStrings.enterEmail,
-                        label: AppStrings.email,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: Validators.validateEmail,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      CustomTextField(
-                        controller: _passwordController,
-                        hint: AppStrings.enterPassword,
-                        label: AppStrings.password,
-                        obscureText: _obscurePassword,
-                        validator: Validators.validatePassword,
-                      ),
-                      Spacer(flex: 4),
-
-                      CustomGradientButton(
-                        text: AppStrings.login,
-                        onPressed: _handleLogin,
-                        isLoading: isLoading,
-                      ),
-                      const SizedBox(height: 19),
-                      CustomButton(
-                        text: AppStrings.register,
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider.value(
-                              value: context.read<AuthBloc>(),
-                              child: const RegisterScreen(),
+                      child: IntrinsicHeight(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Spacer(flex: 5),
+                                Text(
+                                  AppStrings.loginTitle,
+                                  style: GoogleFonts.pressStart2p(
+                                    fontSize: 20,
+                                    shadows: [
+                                      Shadow(
+                                        color: Color(0xFF9D4EDD),
+                                        blurRadius: 40,
+                                      ),
+                                      Shadow(
+                                        color: Color(0xFF9D4EDD),
+                                        blurRadius: 30,
+                                      ),
+                                      Shadow(
+                                        color: Color(0xFFB565F2),
+                                        blurRadius: 20,
+                                      ),
+                                      Shadow(
+                                        color: Color(0xFFD4A5FF),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                CustomTextField(
+                                  controller: _emailController,
+                                  hint: AppStrings.enterEmail,
+                                  label: AppStrings.email,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  validator: Validators.validateEmail,
+                                ),
+                                const SizedBox(height: 20),
+                                CustomTextField(
+                                  controller: _passwordController,
+                                  hint: AppStrings.enterPassword,
+                                  label: AppStrings.password,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  validator: Validators.validatePassword,
+                                ),
+                                Spacer(flex: 4),
+                                CustomGradientButton(
+                                  text: AppStrings.login,
+                                  onPressed: _handleLogin,
+                                  isLoading: isLoading,
+                                ),
+                                const SizedBox(height: 19),
+                                CustomButton(
+                                  text: AppStrings.register,
+                                  onPressed: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BlocProvider.value(
+                                        value: context.read<AuthBloc>(),
+                                        child: const RegisterScreen(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             );
           },

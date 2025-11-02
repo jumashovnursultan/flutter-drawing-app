@@ -89,8 +89,10 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
     );
   }
 
-  void _handleExport(BuildContext context) {
-    context.read<DrawingBloc>().add(ExportDrawingEvent(_getCanvasSize()));
+  void _handleExport(BuildContext context, Rect? sharePositionOrigin) {
+    context.read<DrawingBloc>().add(
+      ExportDrawingEvent(_getCanvasSize(), sharePositionOrigin),
+    );
   }
 
   void _handleImport(BuildContext context) {
@@ -200,7 +202,8 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                                 );
                               }
                             },
-                            onExportTap: () async => _handleExport(context),
+                            onExportTap: (sharePositionOrigin) async =>
+                                _handleExport(context, sharePositionOrigin),
                             onImportTap: () => _handleImport(context),
                             onPaletteTap: () => _showColorPicker(
                               context,

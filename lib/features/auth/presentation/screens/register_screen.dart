@@ -95,6 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (context, state) {
           final isLoading = state is AuthLoading;
           return Scaffold(
+            resizeToAvoidBottomInset: true,
             backgroundColor: Colors.transparent,
             appBar: AppBar(),
             body: SafeArea(
@@ -134,6 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                           label: AppStrings.name,
                           hint: AppStrings.enterYourName,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 20),
                         CustomTextField(
@@ -142,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: Validators.validateEmail,
                           label: AppStrings.email,
                           hint: AppStrings.yourEmail,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 20),
                         Divider(
@@ -157,6 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: Validators.validatePassword,
                           label: AppStrings.password,
                           hint: AppStrings.eightToSixteenCharacters,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 20),
                         CustomTextField(
@@ -165,6 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: _validateConfirmPassword,
                           label: AppStrings.confirmPassword,
                           hint: AppStrings.eightToSixteenCharacters,
+                          textInputAction: TextInputAction.done,
                         ),
                         SizedBox(height: 60),
                       ],

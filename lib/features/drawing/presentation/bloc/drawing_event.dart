@@ -57,11 +57,12 @@ class ImportImageEvent extends DrawingEvent {}
 
 class ExportDrawingEvent extends DrawingEvent {
   final Size canvasSize;
+  final Rect? sharePositionOrigin;
 
-  const ExportDrawingEvent(this.canvasSize);
+  const ExportDrawingEvent(this.canvasSize, this.sharePositionOrigin);
 
   @override
-  List<Object?> get props => [canvasSize];
+  List<Object?> get props => [canvasSize, sharePositionOrigin];
 }
 
 class SaveDrawingEvent extends DrawingEvent {
