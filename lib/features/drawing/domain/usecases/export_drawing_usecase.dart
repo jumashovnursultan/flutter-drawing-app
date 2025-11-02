@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:dartz/dartz.dart';
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/canvas_state.dart';
@@ -48,7 +49,7 @@ class ExportDrawingUseCase {
 
       return Right(image);
     } catch (e) {
-      return Left(ServerFailure('Ошибка экспорта: $e'));
+      return Left(ServerFailure(AppStrings.exportError(e.toString())));
     }
   }
 }

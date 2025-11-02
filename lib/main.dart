@@ -1,4 +1,5 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:drawing_app/core/constants/app_strings.dart';
+import 'package:drawing_app/core/services/connectivity_service.dart';
 import 'package:drawing_app/core/services/notification_service.dart';
 import 'package:drawing_app/core/theme/app_theme.dart';
 import 'package:drawing_app/features/auth/presentation/bloc/auth_event.dart';
@@ -16,20 +17,11 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  bool hasInternet = true;
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-
-    hasInternet =
-        connectivityResult.first != ConnectivityResult.none ||
-        connectivityResult.isEmpty;
-  } catch (e) {
-    hasInternet = true;
-  }
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   await di.init();
+
+  final internetChecker = di.sl<InternetChecker>();
+  final hasInternet = await internetChecker.hasInternetAccess();
 
   final notificationService = di.sl<NotificationService>();
   await notificationService.initialize();
@@ -49,13 +41,13 @@ class MyApp extends StatelessWidget {
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: MaterialApp(
-          title: 'Drawing App',
+          title: AppStrings.appName,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           home: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (!hasInternet) {
-                return _NoInternetScreen();
+                return const _NoInternetScreen();
               }
               if (state is AuthStatusChecking) {
                 return const Scaffold(
@@ -74,7 +66,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class _NoInternetScreen extends StatelessWidget {
+class _NoInternetScreen extends StatefulWidget {
+  const _NoInternetScreen();
+
+  @override
+  State<_NoInternetScreen> createState() => _NoInternetScreenState();
+}
+
+class _NoInternetScreenState extends State<_NoInternetScreen> {
+  bool _isChecking = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +88,7 @@ class _NoInternetScreen extends StatelessWidget {
               Icon(Icons.wifi_off, size: 100, color: Colors.grey.shade400),
               const SizedBox(height: 24),
               Text(
-                'Нет подключения к интернету',
+                AppStrings.noInternet,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24,
@@ -97,32 +98,28 @@ class _NoInternetScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Проверьте подключение к Wi-Fi или мобильным данным и попробуйте снова',
+                AppStrings.checkConnectionMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 32),
               ElevatedButton.icon(
-                onPressed: () async {
-                  final connectivityResult = await Connectivity()
-                      .checkConnectivity();
-                  if (connectivityResult.first != ConnectivityResult.none) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const MyApp(hasInternet: true),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Все еще нет подключения к интернету'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Попробовать снова'),
+                onPressed: _isChecking ? null : _checkInternetAndReload,
+                icon: _isChecking
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.refresh),
+                label: Text(
+                  _isChecking ? AppStrings.checking : AppStrings.retry,
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
@@ -137,5 +134,29 @@ class _NoInternetScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _checkInternetAndReload() async {
+    setState(() => _isChecking = true);
+
+    final internetChecker = di.sl<InternetChecker>();
+    final hasInternet = await internetChecker.hasInternetAccess();
+
+    setState(() => _isChecking = false);
+
+    if (!mounted) return;
+
+    if (hasInternet) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MyApp(hasInternet: true)),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(AppStrings.noInternetStill),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

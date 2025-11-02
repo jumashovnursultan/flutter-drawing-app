@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/user.dart';
@@ -22,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on firebase_auth.FirebaseAuthException catch (e) {
       return Left(_mapFirebaseError(e));
     } catch (e) {
-      return Left(ServerFailure('Ошибка входа: $e'));
+      return Left(ServerFailure(AppStrings.loginError(e.toString())));
     }
   }
 
@@ -51,7 +52,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on firebase_auth.FirebaseAuthException catch (e) {
       return Left(_mapFirebaseError(e));
     } catch (e) {
-      return Left(ServerFailure('Ошибка регистрации: $e'));
+      return Left(ServerFailure(AppStrings.registrationError(e.toString())));
     }
   }
 
@@ -61,7 +62,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await dataSource.logout();
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure('Ошибка выхода: $e'));
+      return Left(ServerFailure(AppStrings.logoutError(e.toString())));
     }
   }
 
@@ -71,30 +72,30 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await dataSource.getCurrentUser();
       return Right(user);
     } catch (e) {
-      return Left(ServerFailure('Ошибка получения пользователя: $e'));
+      return Left(ServerFailure(AppStrings.getUserError(e.toString())));
     }
   }
 
   Failure _mapFirebaseError(firebase_auth.FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
-        return ServerFailure('Пользователь с таким email не найден');
+        return ServerFailure(AppStrings.userNotFound);
       case 'wrong-password':
-        return ServerFailure('Неверный пароль');
+        return ServerFailure(AppStrings.wrongPassword);
       case 'email-already-in-use':
-        return ServerFailure('Email уже используется');
+        return ServerFailure(AppStrings.emailAlreadyInUse);
       case 'invalid-email':
-        return ServerFailure('Неверный формат email');
+        return ServerFailure(AppStrings.invalidEmail);
       case 'weak-password':
-        return ServerFailure('Слишком простой пароль');
+        return ServerFailure(AppStrings.weakPassword);
       case 'operation-not-allowed':
-        return ServerFailure('Операция не разрешена');
+        return ServerFailure(AppStrings.operationNotAllowed);
       case 'user-disabled':
-        return ServerFailure('Пользователь заблокирован');
+        return ServerFailure(AppStrings.userDisabled);
       case 'network-request-failed':
-        return ServerFailure('Ошибка сети. Проверьте интернет-соединение');
+        return ServerFailure(AppStrings.networkError);
       default:
-        return ServerFailure('Ошибка Firebase: ${e.message}');
+        return ServerFailure(AppStrings.firebaseError(e.message));
     }
   }
 

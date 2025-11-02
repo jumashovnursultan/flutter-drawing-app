@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 class SaveDialog extends StatefulWidget {
@@ -29,14 +30,14 @@ class _SaveDialogState extends State<SaveDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Сохранить рисунок'),
+      title: const Text(AppStrings.saveDrawingTitle),
       content: Form(
         key: _formKey,
         child: TextFormField(
           controller: _controller,
           decoration: const InputDecoration(
-            labelText: 'Название',
-            hintText: 'Введите название рисунка',
+            labelText: AppStrings.drawingTitle,
+            hintText: AppStrings.enterDrawingTitle,
             border: OutlineInputBorder(),
           ),
           autofocus: true,
@@ -51,7 +52,7 @@ class _SaveDialogState extends State<SaveDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Отмена'),
+          child: const Text(AppStrings.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -63,7 +64,7 @@ class _SaveDialogState extends State<SaveDialog> {
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Сохранить'),
+          child: const Text(AppStrings.save),
         ),
       ],
     );

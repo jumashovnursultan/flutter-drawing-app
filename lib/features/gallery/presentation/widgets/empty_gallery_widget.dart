@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 class EmptyGalleryWidget extends StatelessWidget {
@@ -20,7 +21,7 @@ class EmptyGalleryWidget extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Пока нет рисунков',
+              AppStrings.noDrawingsYet,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -29,7 +30,7 @@ class EmptyGalleryWidget extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Создайте свой первый рисунок,\nчтобы начать работу',
+              AppStrings.emptyGalleryMessage,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
@@ -37,7 +38,7 @@ class EmptyGalleryWidget extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onCreateNew,
               icon: const Icon(Icons.add),
-              label: const Text('Создать новый'),
+              label: const Text(AppStrings.createNew),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,

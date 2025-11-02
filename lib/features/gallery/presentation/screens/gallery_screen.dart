@@ -48,19 +48,22 @@ class GalleryScreenContent extends StatelessWidget {
     final shouldLogout = await showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Выход'),
-        content: const Text('Вы уверены, что хотите выйти?'),
+        title: const Text(AppStrings.logoutTitle),
+        content: const Text(AppStrings.logoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Отмена'),
+            child: const Text(AppStrings.logout),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext, true);
               context.read<AuthBloc>().add(LogoutEvent());
             },
-            child: const Text('Выйти', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              AppStrings.logout,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -74,19 +77,22 @@ class GalleryScreenContent extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Удалить рисунок?'),
-        content: Text('Вы уверены, что хотите удалить "$title"?'),
+        title: const Text(AppStrings.deleteDrawing),
+        content: Text(AppStrings.deleteDrawingMessage(title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Отмена'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               context.read<GalleryBloc>().add(DeleteDrawingEvent(drawingId));
             },
-            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              AppStrings.delete,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -181,7 +187,7 @@ class GalleryScreenContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Ошибка загрузки',
+                      AppStrings.loadingError,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -208,7 +214,7 @@ class GalleryScreenContent extends StatelessWidget {
                         }
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Попробовать снова'),
+                      label: const Text(AppStrings.retry),
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:drawing_app/core/services/notification_service.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -144,7 +145,9 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
 
       add(SetBackgroundImageEvent(image));
     } catch (e) {
-      emit(DrawingError(state.canvasState, 'Ошибка импорта: $e'));
+      emit(
+        DrawingError(state.canvasState, AppStrings.importError(e.toString())),
+      );
       emit(DrawingInProgress(state.canvasState));
     }
   }
@@ -173,7 +176,12 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
         ),
       );
     } catch (e) {
-      emit(DrawingError(state.canvasState, 'Ошибка загрузки рисунка: $e'));
+      emit(
+        DrawingError(
+          state.canvasState,
+          AppStrings.loadDrawingError(e.toString()),
+        ),
+      );
       emit(DrawingInProgress(state.canvasState));
     }
   }
@@ -205,7 +213,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
           await imageService.shareImage(image);
 
           await notificationService.showNotification(
-            title: '🎨 Рисунок сохранён',
+            title: AppStrings.drawingSaved,
             body: '',
           );
 
@@ -214,7 +222,9 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
         },
       );
     } catch (e) {
-      emit(DrawingError(state.canvasState, 'Ошибка экспорта: $e'));
+      emit(
+        DrawingError(state.canvasState, AppStrings.exportError(e.toString())),
+      );
       emit(DrawingInProgress(state.canvasState));
     }
   }
@@ -263,7 +273,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
               } catch (e) {}
 
               await notificationService.showNotification(
-                title: '🎨 Рисунок сохранён',
+                title: AppStrings.drawingSaved,
                 body: event.title,
               );
 
@@ -271,8 +281,8 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
                 DrawingSaved(
                   state.canvasState,
                   event.drawingId != null
-                      ? 'Рисунок обновлен'
-                      : 'Рисунок сохранен',
+                      ? AppStrings.drawingUpdated
+                      : AppStrings.drawingSaved,
                 ),
               );
 
@@ -283,7 +293,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
         },
       );
     } catch (e) {
-      emit(DrawingError(state.canvasState, 'Ошибка сохранения: $e'));
+      emit(DrawingError(state.canvasState, AppStrings.saveError(e.toString())));
       emit(DrawingInProgress(state.canvasState));
     }
   }

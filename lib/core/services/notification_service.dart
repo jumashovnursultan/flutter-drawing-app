@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -53,7 +54,7 @@ class NotificationService {
     const androidDetails = AndroidNotificationDetails(
       'drawing_app_channel',
       'Drawing App Notifications',
-      channelDescription: 'Notifications for drawing app events',
+      channelDescription: AppStrings.notificationChannelDescription,
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,

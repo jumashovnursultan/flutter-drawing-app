@@ -1,21 +1,29 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-class ConnectivityService {
+import 'package:http/http.dart' as http;
+
+class InternetChecker {
   final Connectivity _connectivity = Connectivity();
 
   Future<bool> hasConnection() async {
-    try {
-      final result = await _connectivity.checkConnectivity();
+    final result = await _connectivity.checkConnectivity();
+    return result.first != ConnectivityResult.none;
+  }
 
-      return result.contains(ConnectivityResult.mobile) ||
-          result.contains(ConnectivityResult.wifi) ||
-          result.contains(ConnectivityResult.ethernet);
+  Future<bool> hasInternetAccess() async {
+    // Быстрая проверка типа подключения
+    if (!await hasConnection()) {
+      return false;
+    }
+
+    try {
+      final response = await http
+          .get(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+
+      return response.statusCode == 200;
     } catch (e) {
       return false;
     }
-  }
-
-  Stream<List<ConnectivityResult>> get onConnectivityChanged {
-    return _connectivity.onConnectivityChanged;
   }
 }

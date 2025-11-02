@@ -26,7 +26,8 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   //! Core Services
-  sl.registerLazySingleton(() => ConnectivityService());
+
+  sl.registerLazySingleton(() => InternetChecker());
 
   //! Features - Auth
   sl.registerFactory(
@@ -48,10 +49,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<FirebaseAuthDataSource>(
-    () => FirebaseAuthDataSourceImpl(
-      firebaseAuth: sl(),
-      connectivityService: sl(),
-    ),
+    () => FirebaseAuthDataSourceImpl(firebaseAuth: sl(), internetChecker: sl()),
   );
 
   //! Features - Gallery
@@ -87,7 +85,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<FirestoreDataSource>(
-    () => FirestoreDataSourceImpl(firestore: sl(), connectivityService: sl()),
+    () => FirestoreDataSourceImpl(firestore: sl(), internetChecker: sl()),
   );
 
   //! External (Firebase)

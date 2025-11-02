@@ -11,7 +11,7 @@ class Validators {
     );
 
     if (!emailRegex.hasMatch(value)) {
-      return AppStrings.emailInvalid;
+      return AppStrings.invalidEmail;
     }
 
     return null;

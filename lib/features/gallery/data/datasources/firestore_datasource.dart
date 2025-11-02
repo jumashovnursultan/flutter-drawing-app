@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:drawing_app/core/services/connectivity_service.dart';
 import '../models/drawing_model.dart';
 
@@ -12,19 +13,18 @@ abstract class FirestoreDataSource {
 
 class FirestoreDataSourceImpl implements FirestoreDataSource {
   final FirebaseFirestore firestore;
-  final ConnectivityService connectivityService;
+  final InternetChecker internetChecker;
 
   static const String collectionName = 'drawings';
 
   FirestoreDataSourceImpl({
     required this.firestore,
-    required this.connectivityService,
+    required this.internetChecker,
   });
-
   Future<void> _checkConnection() async {
-    final hasConnection = await connectivityService.hasConnection();
-    if (!hasConnection) {
-      throw Exception('Нет подключения к интернету');
+    final hasInternet = await internetChecker.hasInternetAccess(); // ← ИЗМЕНИТЬ
+    if (!hasInternet) {
+      throw Exception(AppStrings.noInternet);
     }
   }
 
@@ -65,7 +65,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
       }
     } catch (e) {
       print('❌ Ошибка сохранения: $e');
-      throw Exception('Ошибка сохранения рисунка: $e');
+      throw Exception(AppStrings.saveDrawingError(e.toString()));
     }
   }
 
@@ -83,7 +83,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
           .map((doc) => DrawingModel.fromFirestore(doc))
           .toList();
     } catch (e) {
-      throw Exception('Ошибка загрузки рисунков: $e');
+      throw Exception(AppStrings.loadDrawingsError);
     }
   }
 
@@ -97,12 +97,12 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
           .get();
 
       if (!doc.exists) {
-        throw Exception('Рисунок не найден');
+        throw Exception(AppStrings.drawingNotFound);
       }
 
       return DrawingModel.fromFirestore(doc);
     } catch (e) {
-      throw Exception('Ошибка загрузки рисунка: $e');
+      throw Exception(AppStrings.loadDrawingError(e.toString()));
     }
   }
 
@@ -122,7 +122,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
           .get();
       return DrawingModel.fromFirestore(doc);
     } catch (e) {
-      throw Exception('Ошибка обновления рисунка: $e');
+      throw Exception(AppStrings.updateDrawingError(e.toString()));
     }
   }
 
@@ -132,7 +132,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
     try {
       await firestore.collection(collectionName).doc(drawingId).delete();
     } catch (e) {
-      throw Exception('Ошибка удаления рисунка: $e');
+      throw Exception(AppStrings.deleteDrawingError(e.toString()));
     }
   }
 }

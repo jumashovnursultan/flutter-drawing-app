@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -32,7 +33,7 @@ class _SimpleColorPickerState extends State<SimpleColorPicker> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'Выберите цвет',
+            AppStrings.selectColor,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -56,7 +57,7 @@ class _SimpleColorPickerState extends State<SimpleColorPicker> {
               backgroundColor: Colors.deepPurple,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Готово'),
+            child: const Text(AppStrings.done),
           ),
         ],
       ),

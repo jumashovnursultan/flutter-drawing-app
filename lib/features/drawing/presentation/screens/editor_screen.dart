@@ -101,19 +101,22 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Очистить холст?'),
-        content: const Text('Вы уверены? Это действие нельзя отменить.'),
+        title: const Text(AppStrings.clearCanvasConfirm),
+        content: const Text(AppStrings.clearCanvasMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Отмена'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               context.read<DrawingBloc>().add(ClearCanvasEvent());
             },
-            child: const Text('Очистить', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              AppStrings.clear,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -159,7 +162,7 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
           if (state is DrawingExported) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Рисунок экспортирован'),
+                content: Text(AppStrings.drawingExported),
                 backgroundColor: Colors.green,
               ),
             );
@@ -274,7 +277,9 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              canvasState.isEraser ? 'Ластик' : 'Кисть',
+                              canvasState.isEraser
+                                  ? AppStrings.eraser
+                                  : AppStrings.brush,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -283,7 +288,9 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                             const Icon(Icons.circle, size: 12),
                             const SizedBox(width: 4),
                             Text(
-                              'Размер: ${canvasState.brushSize.round()}',
+                              AppStrings.brushSize(
+                                canvasState.brushSize.round(),
+                              ),
                               style: const TextStyle(fontSize: 12),
                             ),
                           ],
@@ -306,7 +313,7 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
                                 CircularProgressIndicator(),
                                 SizedBox(height: 16),
                                 Text(
-                                  'Сохранение...',
+                                  AppStrings.saving,
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ],

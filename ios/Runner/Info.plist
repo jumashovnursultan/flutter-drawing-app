@@ -45,17 +45,22 @@
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
+		
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Нужен доступ к галерее для импорта изображений</string>
+		<string>Приложению необходим доступ к галерее для загрузки изображений в редактор для последующего их редактирования и создания новых рисунков на их основе</string>
+		
 		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>Нужен доступ для сохранения рисунков в галерею</string>
+		<string>Приложению необходим доступ к галерее для сохранения созданных и отредактированных изображений в фотогалерею устройства</string>
+		
 		<key>NSCameraUsageDescription</key>
-		<string>Нужен доступ к камере для создания фото</string>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>fetch</string>
-			<string>remote-notification</string>
-		</array>
+		<string>Разрешение не используется в текущей версии приложения, но требуется библиотекой image_picker для корректной работы</string>
+		
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Разрешение не используется в текущей версии приложения, но требуется библиотекой image_picker для корректной работы</string>
+		
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Разрешение не используется в текущей версии приложения, но требуется библиотекой connectivity_plus для проверки доступности сети на iOS 13+</string>
+		
 		<key>UIStatusBarHidden</key>
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>

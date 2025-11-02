@@ -1,3 +1,4 @@
+import 'package:drawing_app/core/constants/app_strings.dart';
 import 'package:drawing_app/core/services/connectivity_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../models/user_model.dart';
@@ -16,17 +17,17 @@ abstract class FirebaseAuthDataSource {
 
 class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   final firebase_auth.FirebaseAuth firebaseAuth;
-  final ConnectivityService connectivityService;
+  final InternetChecker internetChecker;
 
   FirebaseAuthDataSourceImpl({
     required this.firebaseAuth,
-    required this.connectivityService,
+    required this.internetChecker,
   });
 
   Future<void> _checkConnection() async {
-    final hasConnection = await connectivityService.hasConnection();
-    if (!hasConnection) {
-      throw Exception('Нет подключения к интернету');
+    final hasInternet = await internetChecker.hasInternetAccess(); // ← ИЗМЕНИТЬ
+    if (!hasInternet) {
+      throw Exception(AppStrings.noInternet);
     }
   }
 
@@ -45,7 +46,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       if (credential.user == null) {
         throw firebase_auth.FirebaseAuthException(
           code: 'user-not-found',
-          message: 'Пользователь не найден',
+          message: AppStrings.userNotFoundGeneral,
         );
       }
 
@@ -70,7 +71,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       if (credential.user == null) {
         throw firebase_auth.FirebaseAuthException(
           code: 'registration-failed',
-          message: 'Не удалось зарегистрировать пользователя',
+          message: AppStrings.registrationFailed,
         );
       }
 
