@@ -25,7 +25,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   });
 
   Future<void> _checkConnection() async {
-    final hasInternet = await internetChecker.hasInternetAccess(); // ← ИЗМЕНИТЬ
+    final hasInternet = await internetChecker.hasInternetAccess();
     if (!hasInternet) {
       throw Exception(AppStrings.noInternet);
     }

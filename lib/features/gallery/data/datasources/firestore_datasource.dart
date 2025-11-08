@@ -22,7 +22,7 @@ class FirestoreDataSourceImpl implements FirestoreDataSource {
     required this.internetChecker,
   });
   Future<void> _checkConnection() async {
-    final hasInternet = await internetChecker.hasInternetAccess(); // ← ИЗМЕНИТЬ
+    final hasInternet = await internetChecker.hasInternetAccess();
     if (!hasInternet) {
       throw Exception(AppStrings.noInternet);
     }
