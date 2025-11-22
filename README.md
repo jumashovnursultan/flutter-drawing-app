@@ -120,9 +120,9 @@ flutter build ios --release
 
 ## 📱 Скриншоты
 
-| Авторизация | Редактор | Галерея |
-|-------------|----------|---------|
-| ![Login](assets/screenshots/login.png) ![Register](assets/screenshots/register.png) | ![Editor](assets/screenshots/editor.png) | ![Gallery](assets/screenshots/gallery.png) |
+| Авторизация | Регистрация | Редактор | Галерея |
+|-------------|-------------|----------|---------|
+| ![Login](assets/screenshots/login.png) | ![Register](assets/screenshots/register.png) | ![Editor](assets/screenshots/editor.png) | ![Gallery](assets/screenshots/gallery.png) |
 
 | Выбор цвета | Экспорт | Уведомление |
 |-------------|---------|-------------|
