@@ -3,10 +3,10 @@ import 'package:equatable/equatable.dart';
 import 'drawing_point.dart';
 
 class CanvasState extends Equatable {
-  final List<List<DrawingPoint>> strokes;
-  final double brushSize;
-  final int brushColor;
-  final bool isEraser;
+  final List<List<DrawingPoint>> strokes; // один лист это одно линия
+  final double brushSize; // толщина кисти
+  final int brushColor; // цвет кисти
+  final bool isEraser; //режим ластика
   final ui.Image? backgroundImage;
 
   const CanvasState({

@@ -19,7 +19,12 @@ class DrawingCanvas extends CustomPainter {
       );
       final dst = Rect.fromLTWH(0, 0, size.width, size.height);
 
-      canvas.drawImageRect(image, src, dst, Paint());
+      canvas.drawImageRect(
+        image,
+        src, // откуда берём пиксели из исходного изображения.
+        dst, // куда рисуем эти пиксели на canvas.
+        Paint(),
+      );
     } else {
       canvas.drawRect(
         Rect.fromLTWH(0, 0, size.width, size.height),
@@ -40,6 +45,7 @@ class DrawingCanvas extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant DrawingCanvas oldDelegate) {
+    // нужно ли перерисовывать canvas
     return oldDelegate.canvasState != canvasState;
   }
 }

@@ -48,7 +48,8 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
           ? const Color(0xFFFFFFFF)
           : Color(state.canvasState.brushColor)
       ..strokeWidth = state.canvasState.brushSize
-      ..strokeCap = StrokeCap.round
+      ..strokeCap = StrokeCap
+          .round // форма концов линии
       ..style = PaintingStyle.stroke;
   }
 
@@ -164,6 +165,7 @@ class DrawingBloc extends Bloc<DrawingEvent, DrawingState> {
   }
 
   Future<void> _onLoadExistingDrawing(
+    // при существующий canvas
     LoadExistingDrawingEvent event,
     Emitter<DrawingState> emit,
   ) async {

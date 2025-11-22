@@ -52,8 +52,9 @@ class _EditorScreenContentState extends State<EditorScreenContent> {
   final GlobalKey _canvasKey = GlobalKey();
 
   Size _getCanvasSize() {
-    final RenderBox? renderBox =
+    final renderBox =
         _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+
     return renderBox?.size ?? const Size(300, 400);
   }
 

@@ -11,8 +11,8 @@ class ExportDrawingUseCase {
     Size size,
   ) async {
     try {
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
+      final recorder = ui.PictureRecorder(); // Записывает все что ты рисуешь
+      final canvas = Canvas(recorder); // холст для рисования
 
       if (canvasState.backgroundImage != null) {
         final image = canvasState.backgroundImage!;
@@ -23,21 +23,28 @@ class ExportDrawingUseCase {
           image.height.toDouble(),
         );
         final dst = Rect.fromLTWH(0, 0, size.width, size.height);
-        canvas.drawImageRect(image, src, dst, Paint());
+        canvas.drawImageRect(image, src, dst, Paint()); // рисует картинку
       } else {
         canvas.drawRect(
           Rect.fromLTWH(0, 0, size.width, size.height),
           Paint()..color = const ui.Color(0xFFFFFFFF),
-        );
+        ); // рисует закрашенный белый прямоугольник
       }
 
       for (final stroke in canvasState.strokes) {
-        if (stroke.isEmpty) continue;
+        // Рисует все линии на холсте
 
+        if (stroke.isEmpty) {
+          continue; // если линия пустая (нет точек) → пропусти её.
+        }
         for (int i = 0; i < stroke.length - 1; i++) {
           final p1 = stroke[i];
           final p2 = stroke[i + 1];
-          canvas.drawLine(p1.offset, p2.offset, p1.paint);
+          canvas.drawLine(
+            p1.offset, // текущая точка
+            p2.offset, // // следующая точка
+            p1.paint, //настройки (цвет, толщина)
+          );
         }
       }
 
